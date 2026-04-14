@@ -1,0 +1,31 @@
+{
+  "hosting": {
+    "target": "lti-colloq-voting",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "server.py",
+      "**/.*"
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cross-Origin-Opener-Policy",
+            "value": "same-origin-allow-popups"
+          }
+        ]
+      }
+    ]
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "LTI Colloquium Nominations",
+        "supportEmail": "daphnei@cmu.edu"
+      }
+    }
+  }
+}

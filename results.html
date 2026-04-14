@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Colloquium Dory — Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .results-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .results-header img {
+      height: 40px;
+    }
+
+    .results-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0;
+    }
+
+    .results-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 2px 0 0;
+    }
+
+    .results-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      background: var(--bg2);
+      padding: 12px 16px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    thead th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th.sortable:hover {
+      color: var(--accent);
+    }
+
+    thead th .sort-indicator {
+      display: inline-block;
+      margin-left: 5px;
+      font-size: 0.7rem;
+      opacity: 0.4;
+    }
+
+    thead th.sort-asc .sort-indicator::after  { content: '▲'; opacity: 1; }
+    thead th.sort-desc .sort-indicator::after { content: '▼'; opacity: 1; }
+    thead th:not(.sort-asc):not(.sort-desc) .sort-indicator::after { content: '▲'; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background: var(--accent-dim);
+    }
+
+    tbody td {
+      padding: 12px 16px;
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    td.candidate-name {
+      font-weight: 500;
+    }
+
+    td.vote-score {
+      font-weight: 600;
+      text-align: center;
+    }
+
+    td.vote-score.positive { color: var(--upvote); }
+    td.vote-score.negative { color: var(--downvote); }
+
+    td.vote-count {
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    td.host-list {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    td.host-list span {
+      display: inline-block;
+      background: var(--upvote);
+      color: #fff;
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin: 2px 3px 2px 0;
+      font-size: 0.78rem;
+    }
+
+    #access-denied, #loading-msg {
+      text-align: center;
+      padding: 80px 24px;
+      font-size: 1rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+
+<body style="background: var(--bg); min-height: 100vh;">
+
+  <div id="loading-msg">Loading...</div>
+  <div id="access-denied" class="hidden">Access denied. This page is restricted.</div>
+
+  <div id="results-page" class="hidden results-wrapper">
+    <div class="results-header">
+      <img src="images/CMU-LTI-Logo-RGB_Icon-Fullcolor.png" alt="LTI Logo" />
+      <div>
+        <h1>Colloquium Dory — Results</h1>
+        <p>Nomination summary for dippolit@andrew.cmu.edu only.</p>
+      </div>
+    </div>
+
+    <div class="results-table-wrap">
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th class="sortable" data-col="name">Candidate name<span class="sort-indicator"></span></th>
+            <th class="sortable" data-col="score">Vote score<span class="sort-indicator"></span></th>
+            <th class="sortable" data-col="students">Upvotes by students<span class="sort-indicator"></span></th>
+            <th class="sortable" data-col="faculty">Upvotes by faculty<span class="sort-indicator"></span></th>
+            <th class="sortable" data-col="others">Upvotes by others<span class="sort-indicator"></span></th>
+            <th>Willing to host (yes)</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module" src="results.js"></script>
+</body>
+
+</html>

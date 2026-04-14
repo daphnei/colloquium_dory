@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "dei-lab"
+  },
+  "targets": {
+    "dei-lab": {
+      "hosting": {
+        "lti-colloq-voting": [
+          "lti-colloq-voting"
+        ]
+      }
+    }
+  }
+}
