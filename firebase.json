@@ -1,4 +1,8 @@
 {
+  "firestore": {
+    "database": "lticolloq",
+    "rules": "firestore.rules"
+  },
   "hosting": {
     "target": "lti-colloq-voting",
     "public": ".",

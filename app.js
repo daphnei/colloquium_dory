@@ -44,6 +44,7 @@ const db = getFirestore(app, 'lticolloq');
 // ═══════════════════════════════════════════════════════════
 let currentUser = null;   // Firebase auth user
 let currentRole = null;   // string: masters | phd | postdoc | professor | other
+import { loadAdminEmails, isAdmin } from './config.js';
 let myHostAnswers = {};      // nominationId -> answer, loaded from user's own doc
 let nominations = [];        // array of nomination objects
 let pendingVoteId = null;    // nominationId waiting for professor host-confirmation
@@ -191,6 +192,7 @@ onAuthStateChanged(auth, async (user) => {
         myHostAnswers = userDoc.data().hostAnswers || {};
         userRoleBadge.textContent = currentRole;
         showApp();
+        await loadAdminEmails(db);
         await loadNominations();
       } else {
         // First login — ask for role
@@ -342,7 +344,9 @@ nominateSubmit.addEventListener('click', async () => {
 async function loadNominations() {
   try {
     const snapshot = await getDocs(collection(db, 'nominations'));
-    nominations = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+    nominations = snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(n => !n.hidden);
     renderNominations();
   } catch (err) {
     console.error('Error loading nominations:', err);
@@ -459,7 +463,7 @@ function renderNominations() {
     upBtn.addEventListener('click', () => handleVote(nom.id, 1));
     downBtn.addEventListener('click', () => handleVote(nom.id, -1));
 
-    if (currentUser?.email === 'dippolit@andrew.cmu.edu') {
+    if (isAdmin(currentUser?.email)) {
       const deleteBtn = el.querySelector('.delete-btn');
       deleteBtn.classList.remove('hidden');
       deleteBtn.addEventListener('click', () => handleDelete(nom.id));
@@ -599,17 +603,17 @@ async function applyVote(nominationId, newVote, hostWillingness) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// DELETE (dippolit only)
+// HIDE (admins only)
 // ═══════════════════════════════════════════════════════════
 async function handleDelete(nominationId) {
-  if (!confirm('Delete this nomination? This cannot be undone.')) return;
+  if (!confirm('Hide this nomination? It will no longer appear for any user.')) return;
   try {
-    await deleteDoc(doc(db, 'nominations', nominationId));
+    await updateDoc(doc(db, 'nominations', nominationId), { hidden: true });
     nominations = nominations.filter(n => n.id !== nominationId);
     renderNominations();
   } catch (err) {
-    console.error('❌ Delete failed:', err);
-    alert('Delete failed: ' + err.message);
+    console.error('❌ Hide failed:', err);
+    alert('Hide failed: ' + err.message);
   }
 }
 

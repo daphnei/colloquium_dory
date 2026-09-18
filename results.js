@@ -11,7 +11,7 @@ import {
   getDocs,
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const ADMIN_EMAIL = 'dippolit@andrew.cmu.edu';
+import { loadAdminEmails, isAdmin } from './config.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCNsrH-UIMUCfNXPXmJ60MjWbwR78osMKg",
@@ -56,7 +56,8 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
 
-  if (user.email !== ADMIN_EMAIL) {
+  await loadAdminEmails(db);
+  if (!isAdmin(user.email)) {
     loadingMsg.classList.add('hidden');
     accessDenied.classList.remove('hidden');
     return;
@@ -112,7 +113,7 @@ async function loadResults() {
       }
     }
 
-    return { id: d.id, name: nom.name, score, students, faculty, others, hostsYes };
+    return { id: d.id, name: nom.name, score, students, faculty, others, hostsYes, hidden: !!nom.hidden };
   });
 
   loadingMsg.classList.add('hidden');
@@ -151,6 +152,7 @@ function renderTable() {
       <td class="vote-count">${row.faculty}</td>
       <td class="vote-count">${row.others}</td>
       <td class="host-list">${hostCells}</td>
+      <td class="vote-count">${row.hidden ? '🚫' : ''}</td>
     `;
     tbody.appendChild(tr);
   }

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAndrewUser() {
+      return request.auth != null
+          && request.auth.token.email.matches('.*@andrew\\.cmu\\.edu');
+    }
+    function isAdmin() {
+      return isAndrewUser()
+          && request.auth.token.email in
+             get(/databases/$(database)/documents/config/admins).data.emails;
+    }
+    match /config/{doc} {
+      allow read: if isAndrewUser();
+      // Admin list is managed via Firebase Console
+      allow write: if false;
+    }
+    match /users/{uid} {
+      allow read, write: if isAndrewUser() && request.auth.uid == uid
+          || isAdmin();
+    }
+    match /nominations/{nomId} {
+      allow read:   if isAndrewUser();
+      allow create: if isAndrewUser();
+      allow update: if isAndrewUser()
+        && (
+          // Any andrew user can update votes and hostAnswers
+          (request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['votes', 'hostAnswers'])
+          && (
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['votes'])
+            || (
+              request.resource.data.votes.diff(resource.data.votes)
+                .affectedKeys().hasOnly([request.auth.uid])
+              && (
+                !request.resource.data.votes.keys().hasAny([request.auth.uid])
+                || request.resource.data.votes[request.auth.uid] == 1
+                || request.resource.data.votes[request.auth.uid] == -1
+              )
+            )
+          ))
+          ||
+          // Admins can hide nominations
+          (isAdmin()
+           && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['hidden'])
+           && request.resource.data.hidden == true)
+        );
+      allow delete: if isAdmin();
+    }
+  }
+}
