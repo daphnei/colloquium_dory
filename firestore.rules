@@ -11,7 +11,7 @@ service cloud.firestore {
              get(/databases/$(database)/documents/config/admins).data.emails;
     }
     match /config/{doc} {
-      allow read: if isAndrewUser();
+      allow read: if isAdmin();
       // Admin list is managed via Firebase Console
       allow write: if false;
     }

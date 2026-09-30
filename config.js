@@ -9,8 +9,13 @@ let _adminEmails = null;
  */
 export async function loadAdminEmails(db) {
   if (_adminEmails) return _adminEmails;
-  const snap = await getDoc(doc(db, 'config', 'admins'));
-  _adminEmails = snap.exists() ? (snap.data().emails || []) : [];
+  try {
+    const snap = await getDoc(doc(db, 'config', 'admins'));
+    _adminEmails = snap.exists() ? (snap.data().emails || []) : [];
+  } catch {
+    // Non-admins can't read the config doc — that's expected
+    _adminEmails = [];
+  }
   return _adminEmails;
 }
 
